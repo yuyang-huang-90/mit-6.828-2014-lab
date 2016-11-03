@@ -145,8 +145,42 @@ base8 output support is the same as base16.
   Each time after `va_arg()` is called, the `ap` is shift by 4 bytes to point
   to next args.
 
-4. 
+4. The output is `He110 World`. `57616` could be represented in hex as `e110`. The following sequence of bytes: `0x72 0x6c 0x64 0x00`(little-endin) is `rld\0` in ascii.
+   In big-endian system, the `i` should be `0x726c6400`. The value `57616` need
+   not to be changed.
 
 5. The value will be printed is the 4 bytes value on the stack. Because the
-  `vprintfmt` will interpret the 4 byptes value as integer. 
-   
+  `vprintfmt` will interpret the 4 bytes value as integer.
+
+6. The `cprintf()` need not to be changed. The things need to be changed is
+   `va_start`, `va_arg` and `va_end` in order to make sure we fetch the
+   argument in right order.
+
+## Exercise 9. Determine where the kernel initializes its stack, and exactly where in memory its stack is located. How does the kernel reserve space for its stack? And at which "end" of this reserved area is the stack pointer initialized to point to?
+
+The kernel stack is setup in the `entry.S` as follows:
+
+``
+movl $0x0, %ebp
+movl $(bootstacktop), %esp
+``
+
+`bootstacktop` is a label in `entry.S` with the size of `KSTACKSIZE` which is
+16 KB. The space is reserved by `.space` command. `$esp` is pointed to the
+highest address `$(bootstacktop)`.
+
+
+## Exercise 10. To become familiar with the C calling conventions on the x86, find the address of the test_backtrace function in obj/kern/kernel.asm, set a breakpoint there, and examine what happens each time it gets called after the kernel starts. How many 32-bit words does each recursive nesting level of test_backtrace push on the stack, and what are those words?
+
+Each time the function is called `$ebp`, `$ebx`, `x`, `$0xf0101760` and `$eip` is pushed on the stack.
+
+## Exercise 11. Implement mon_backtrace.
+
+Finished, see the source code for more detail.
+
+
+## Exercise 12. Where the debug information comes from.
+
+In `kernel.ld`, we can find the configuration for allocation the debug
+information in section `.stab` and `.stabstr`.
+
