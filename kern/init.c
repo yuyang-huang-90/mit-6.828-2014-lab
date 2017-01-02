@@ -30,7 +30,7 @@ i386_init(void)
   cprintf("x %d, y %x, z %d\n", x, y, z);
 
 	// Lab 2 memory management initialization functions
-	mem_init();
+  mem_init();
 
 	// Drop into the kernel monitor.
 	while (1)
