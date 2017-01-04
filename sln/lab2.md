@@ -73,3 +73,48 @@ Source code implementation finished.
 
 #Ex.5
 Source code implementation finished.
+
+## Question 2.
+
+* Three major section has been mapped
+	1. the space above KERNBASE.
+	2. the kernel stack.
+	3. the pages data structure.
+	
+| PDE | Base Virtual Address | Points to (logically) |
+|-----|----------------------|-----------------------|
+|1023| 0xFFBFFFFF | Last addressable page table, for kernel use. |
+| ... | ... | ... |
+| 959 | KERNBASE (0xF0000000) | locate at the bottom of physical memory |
+| 958 | KERNBASE - PTSIZE (EFC00000) | This is memory for the kernel stack. We
+only maps KSTACKSIZE|
+| ... | ... | ... |
+| 955 | UPAGES (0xEF000000) | This is where we mapped the `pages` data structure |
+| ... | ... | ... |
+| 0 | 0 | Start of virtual memory |
+
+## Question 3.
+
+The virtual address isolation is enforced by the hardware. The pages are
+assigned either in CPL 0 (kernel) or CPL 3 (user). The user space program can
+only access the pages in CPL 3 but cannot access the pages in CPL 0.
+
+## Question 4.
+
+The OS can support up to 4GB of memory because it has 32 bit address space 2^32
+= 4GB.
+
+
+## Question 5.
+Currently, the overhead is as follows:
+	1. storing the page directory and page tables
+	2. storing the pages struct array
+	3. having a chunk of memory under the kerstack not mapped.
+
+
+## Question 6.
+
+The translation is happened when jumpping to the `relocated` tag. In
+`entrypgdir.c`, it also maps virtual addresses 0 to 4MB to physical address 0
+to 4MB. The transition is necessary because the kernel is linked at high
+address which is above KERNBASE.
