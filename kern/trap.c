@@ -206,8 +206,8 @@ trap_dispatch(struct Trapframe *tf)
 {
 	// Handle processor exceptions.
 	// LAB 3: Your code here.
+	int r;
 
-	// Unexpected trap: The user process or the kernel has a bug.
 	switch(tf->tf_trapno){
 		case T_PGFLT:
 			page_fault_handler(tf);
@@ -215,7 +215,18 @@ trap_dispatch(struct Trapframe *tf)
 		case T_BRKPT:
 			monitor(tf);
 			break;
+		case T_SYSCALL:
+			r = syscall(
+					tf->tf_regs.reg_eax,
+					tf->tf_regs.reg_edx,
+					tf->tf_regs.reg_ecx,
+					tf->tf_regs.reg_ebx,
+					tf->tf_regs.reg_edi,
+					tf->tf_regs.reg_esi);
+			tf->tf_regs.reg_eax = r;
+			break;
 		default:
+			// Unexpected trap: The user process or the kernel has a bug.
 			print_trapframe(tf);
 			if (tf->tf_cs == GD_KT)
 				panic("unhandled trap in kernel");
