@@ -208,6 +208,7 @@ trap_dispatch(struct Trapframe *tf)
 	// LAB 3: Your code here.
 	int r;
 
+//	print_trapframe(tf);
 	switch(tf->tf_trapno){
 		case T_PGFLT:
 			page_fault_handler(tf);
