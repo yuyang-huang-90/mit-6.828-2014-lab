@@ -360,7 +360,7 @@ page_fault_handler(struct Trapframe *tf)
 	// LAB 3: Your code here.
 	if ((tf->tf_cs & 0x1) == 0){
 		print_trapframe(tf);
-		panic("page_fault handler: kernel page fault at addr %08x", fault_va);
+		panic("page_fault_handler: kernel page fault at addr %08x", fault_va);
 	}
 
 	// We've already handled kernel-mode exceptions, so if we get here,
@@ -395,11 +395,43 @@ page_fault_handler(struct Trapframe *tf)
 	//   (the 'tf' variable points at 'curenv->env_tf').
 
 	// LAB 4: Your code here.
+	if (curenv->env_pgfault_upcall == NULL ||
+			tf->tf_esp > UXSTACKTOP ||
+			(tf->tf_esp > USTACKTOP && tf->tf_esp < (UXSTACKTOP - PGSIZE)))
+	{
+		// Destroy the environment that caused the fault.
+		cprintf("[%08x] user fault va %08x ip %08x\n",
+				curenv->env_id, fault_va, tf->tf_eip);
+		print_trapframe(tf);
+		env_destroy(curenv);
 
-	// Destroy the environment that caused the fault.
-	cprintf("[%08x] user fault va %08x ip %08x\n",
-		curenv->env_id, fault_va, tf->tf_eip);
-	print_trapframe(tf);
-	env_destroy(curenv);
+		panic("page_falut_handler: after destory env, should never reach here");
+	}
+
+	uintptr_t cur_uxstack_top;
+	//first time happeded
+	if (tf->tf_esp < UXSTACKTOP && tf->tf_esp >= UXSTACKTOP - PGSIZE) {
+		cur_uxstack_top = tf->tf_esp - 4 - sizeof(struct Trapframe);
+	} else {
+		cur_uxstack_top = UXSTACKTOP - sizeof(struct Trapframe);
+	}
+
+		user_mem_assert(curenv, (void *) cur_uxstack_top, 1, PTE_W | PTE_U);
+
+	// Write the UTrapframe to the exception stack
+	struct UTrapframe *u_tf = (struct UTrapframe *) cur_uxstack_top;
+	u_tf->utf_fault_va = fault_va;
+	u_tf->utf_err = tf->tf_err;
+	u_tf->utf_regs = tf->tf_regs;
+	u_tf->utf_eip = tf->tf_eip;
+	u_tf->utf_eflags = tf->tf_eflags;
+	u_tf->utf_esp = tf->tf_esp;
+
+	// Now adjust the trap frame so that the user process returns to executing
+	// in the exception stack and runs code from the handler.
+	tf->tf_esp = (uintptr_t) cur_uxstack_top;
+	tf->tf_eip = (uintptr_t) curenv->env_pgfault_upcall;
+
+	env_run(curenv);
 }
 
