@@ -56,3 +56,6 @@ Code is implemented.
 
 # Ex.11
 Code is implemented.
+
+# Ex.12
+Code is implemented.
