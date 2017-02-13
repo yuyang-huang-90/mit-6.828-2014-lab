@@ -51,11 +51,6 @@ Code is implemented.
 # Ex.9
 Code is implemented.
 
-# Ex.10
-Code is implemented.
+# Ex.10 & Ex.12 & Ex.13
+Code is implemented. (The IDT init parts have already been done in lab3.)
 
-# Ex.11
-Code is implemented.
-
-# Ex.12
-Code is implemented.

@@ -236,8 +236,6 @@ print_regs(struct PushRegs *regs)
 static void
 trap_dispatch(struct Trapframe *tf)
 {
-	// Handle processor exceptions.
-	// LAB 3: Your code here.
 
 	// Handle spurious interrupts
 	// The hardware sometimes raises these because of noise on the
@@ -248,14 +246,12 @@ trap_dispatch(struct Trapframe *tf)
 		return;
 	}
 
-	// Handle clock interrupts. Don't forget to acknowledge the
-	// interrupt using lapic_eoi() before calling the scheduler!
-	// LAB 4: Your code here.
 
 
 	int r;
 
-//	print_trapframe(tf);
+	// Handle processor exceptions.
+	// LAB 3: Your code here.
 	switch(tf->tf_trapno){
 		case T_PGFLT:
 			page_fault_handler(tf);
@@ -272,6 +268,13 @@ trap_dispatch(struct Trapframe *tf)
 					tf->tf_regs.reg_edi,
 					tf->tf_regs.reg_esi);
 			tf->tf_regs.reg_eax = r;
+			break;
+		case IRQ_OFFSET + IRQ_TIMER:
+	// Handle clock interrupts. Don't forget to acknowledge the
+	// interrupt using lapic_eoi() before calling the scheduler!
+	// LAB 4: Your code here.
+			lapic_eoi();
+			sched_yield();
 			break;
 		default:
 			// Unexpected trap: The user process or the kernel has a bug.
