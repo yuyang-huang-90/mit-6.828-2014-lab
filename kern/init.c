@@ -35,9 +35,12 @@ i386_init(void)
 	cons_init();
 
 	cprintf("6828 decimal is %o octal!\n", 6828);
+  //test cprintf
+  int x = 1, y = 3, z = 4;
+  cprintf("x %d, y %x, z %d\n", x, y, z);
 
 	// Lab 2 memory management initialization functions
-	mem_init();
+  mem_init();
 
 	// Lab 3 user environment initialization functions
 	env_init();
@@ -56,6 +59,7 @@ i386_init(void)
 
 	// Acquire the big kernel lock before waking up APs
 	// Your code here:
+	lock_kernel();
 
 	// Starting non-boot CPUs
 	boot_aps();
@@ -117,7 +121,7 @@ boot_aps(void)
 
 // Setup code for APs
 void
-mp_main(void)
+mp_main(void )
 {
 	// We are in high EIP now, safe to switch to kern_pgdir 
 	lcr3(PADDR(kern_pgdir));
@@ -133,6 +137,8 @@ mp_main(void)
 	// only one CPU can enter the scheduler at a time!
 	//
 	// Your code here:
+	lock_kernel();
+	sched_yield();
 
 	// Remove this after you finish Exercise 4
 	for (;;);
