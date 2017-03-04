@@ -79,7 +79,7 @@ duppage(envid_t envid, unsigned pn)
 
 	// LAB 4: Your code here.
 	uint32_t old_perm = uvpt[pn] & PTE_SYSCALL;
-	if ((uvpt[pn] & PTE_COW) || (uvpt[pn] & PTE_W) || !(uvpt[pn] & PTE_SHARE)) {
+	if (((uvpt[pn] & PTE_COW) || (uvpt[pn] & PTE_W)) && !(uvpt[pn] & PTE_SHARE)) {
 		uint32_t new_perm = (old_perm & (~PTE_W)) | PTE_COW;
 				// map page COW in child
 		if ((r = sys_page_map(0, (void *) (pn*PGSIZE), envid, (void *) (pn*PGSIZE), new_perm)) < 0)

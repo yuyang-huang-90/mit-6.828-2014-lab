@@ -18,3 +18,15 @@ Code is implemented.
 
 # Ex.6
 Code is implemented.
+
+# Ex.7
+Code is implemented.
+
+# Ex.8
+Code is implemented.
+
+# Ex.9
+Code is implemented.
+
+# Ex.10
+Code is implemented.
