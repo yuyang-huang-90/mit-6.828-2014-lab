@@ -278,6 +278,8 @@ trap_dispatch(struct Trapframe *tf)
 	// triggered on every CPU.
 	// LAB 6: Your code here.
 			lapic_eoi();
+			if (cpunum() == 0)
+				time_tick();
 			sched_yield();
 			break;
 	// Handle keyboard and serial interrupts.
