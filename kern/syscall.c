@@ -12,6 +12,7 @@
 #include <kern/console.h>
 #include <kern/sched.h>
 #include <kern/time.h>
+#include <kern/e1000.h>
 
 // Print a string to the system console.
 // The string is exactly 'len' characters long.
@@ -433,6 +434,25 @@ sys_time_msec(void)
 	return time_msec();
 }
 
+//transmit the packet
+static int
+sys_e1000_transmit(void *addr, size_t length)
+{
+	user_mem_assert(curenv, addr, length, PTE_W);
+	uint32_t ntries = 10;
+
+	// try 10 times to transmit
+	while((e1000_transmit(addr,length) == -1) && (ntries > 0)) {
+		sys_yield();
+		ntries--;
+	}
+
+	if (ntries == 0)
+		return -E_E1000_TX_FAILED;
+
+	return 0;
+}
+
 // Dispatches to the correct kernel function, passing the arguments.
 int32_t
 syscall(uint32_t syscallno, uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, uint32_t a5)
@@ -474,6 +494,8 @@ syscall(uint32_t syscallno, uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, 
 			return sys_env_set_trapframe(a1, (struct Trapframe *) a2);
 		case SYS_time_msec:
 			return (int32_t)sys_time_msec();
+		case SYS_e1000_transmit:
+			return (int32_t)sys_e1000_transmit((void *)a1, a2);
 		default:
 			return -E_INVAL;
 	}

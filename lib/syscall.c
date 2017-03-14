@@ -37,6 +37,12 @@ syscall(int num, int check, uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, 
 	return ret;
 }
 
+int
+sys_e1000_transmit(void * addr, size_t length)
+{
+ return (int) syscall(SYS_e1000_transmit, 0, (uint32_t)addr, (uint32_t)length, 0, 0, 0);
+}
+
 void
 sys_cputs(const char *s, size_t len)
 {
