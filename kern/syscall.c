@@ -439,18 +439,7 @@ static int
 sys_e1000_transmit(void *addr, size_t length)
 {
 	user_mem_assert(curenv, addr, length, PTE_W);
-	uint32_t ntries = 10;
-
-	// try 10 times to transmit
-	while((e1000_transmit(addr,length) == -1) && (ntries > 0)) {
-		sys_yield();
-		ntries--;
-	}
-
-	if (ntries == 0)
-		return -E_E1000_TX_FAILED;
-
-	return 0;
+	return e1000_transmit(addr, length);
 }
 
 // Dispatches to the correct kernel function, passing the arguments.

@@ -84,9 +84,9 @@ i386_init(void)
 	// Should not be necessary - drains keyboard because interrupt has given up.
 	kbd_intr();
 
-	e1000_transmit("aaa",3);
-	e1000_transmit("aaaa",4);
-	e1000_transmit("aaaaa",5);
+	//e1000_transmit("aaa",3);
+	//e1000_transmit("bbbb",4);
+	//e1000_transmit("aaaaa",5);
 
 	// Schedule and run the first user environment!
 	sched_yield();
