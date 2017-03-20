@@ -38,9 +38,15 @@ syscall(int num, int check, uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, 
 }
 
 int
-sys_e1000_transmit(void * addr, size_t length)
+sys_e1000_transmit(void *addr, size_t length)
 {
  return (int) syscall(SYS_e1000_transmit, 0, (uint32_t)addr, (uint32_t)length, 0, 0, 0);
+}
+
+int
+sys_e1000_receive(void *addr, size_t *length)
+{
+	return syscall(SYS_e1000_receive, 0, (uint32_t) addr, (uint32_t) length, 0, 0, 0);
 }
 
 void

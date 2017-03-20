@@ -30,6 +30,19 @@
 #define E1000_TDLEN    (0x03808/4)  /* TX Descriptor Length - RW */
 #define E1000_TDH      (0x03810/4)  /* TX Descriptor Head - RW */
 #define E1000_TDT      (0x03818/4) /* TX Descripotr Tail - RW */
+#define E1000_RAL      (0x05400/4)  /* Receive Address Low 32 bits - RW Array */
+#define E1000_RAH      (0x05404/4)  /* Receive Address High 32 bits- RW Array */
+#define E1000_MTA      (0x05200/4)  /* Multicast Table Array - RW Array */
+#define E1000_RDBAL    (0x02800/4)  /* RX Descriptor Base Address Low - RW */
+#define E1000_RDBAH    (0x02804/4)  /* RX Descriptor Base Address High - RW */
+#define E1000_RDLEN    (0x02808/4)  /* RX Descriptor Length - RW */
+#define E1000_RDH      (0x02810/4)  /* RX Descriptor Head - RW */
+#define E1000_RDT      (0x02818/4)  /* RX Descriptor Tail - RW */
+#define E1000_RCTL     (0x00100/4)  /* RX Control - RW */
+#define E1000_IMS      (0x000D0/4)  /* Interrupt Mask Set - RW */
+#define E1000_ICR      (0x000C0/4)  /* Interrupt Cause Read - R/clr */
+#define E1000_EERD     (0x00014/4)  /* EEPROM Read - RW */
+
 
  /* Transmit Descriptor bit definitions */
 #define E1000_TXD_DEXT	0x20 /* bit 5 in CMD section */
@@ -48,6 +61,26 @@
 #define E1000_TIPG_IPGR1 10
 #define E1000_TIPG_IPGR2 20
 
+// Receive control bits
+#define E1000_RCTL_EN           0x00000002 /* enable*/
+#define E1000_RCTL_LBM_NO       0xffffff3f /* no loopback mode, 6 & 7 bit set to 0 */
+#define E1000_RCTL_SZ_2048      0xfffcffff /* buffer size at 2048 by setting 16 and 17 bit to 0 */
+#define E1000_RCTL_SECRC        0x04000000 /* strip CRC by setting 26 bit to 1 */
+#define E1000_RCTL_LPE_NO       0xffffffdf /* disable long packet mode*/
+
+// Receive descriptor status bits
+#define E1000_RXD_STATUS_DD		0x1
+#define E1000_RXD_STATUS_EOP	0x2
+
+// Receive Timer Interrupt mask
+#define E1000_RXT0	0x00000080 /* 7th bit */
+
+
+// RAH valid bit
+#define E1000_RAH_AV  0x80000000        /* Receive descriptor valid */
+
+# define NELEM_MTA 128
+
 /* Transmit Descriptor */
 struct e1000_tx_desc
 {
@@ -62,16 +95,17 @@ struct e1000_tx_desc
 
 /* Receive Descriptor */
 struct e1000_rx_desc {
-	uint64_t buffer_addr; /* Address of the descriptor's data buffer */
-	uint16_t length;     /* Length of data DMAed into data buffer */
-	uint16_t csum;       /* Packet checksum */
-	uint8_t status;      /* Descriptor status */
-	uint8_t errors;      /* Descriptor Errors */
+	uint64_t addr;
+	uint16_t length;
+	uint16_t csum;
+	uint8_t status;
+	uint8_t errors;
 	uint16_t special;
 };
 
-// the tx ring size
-#define RING_SIZE 32
+// the ring size
+#define TX_RING_SIZE 32
+#define RX_RING_SIZE 128
 
 // the packet buffer size
 #define PKT_BUF_SIZE 2048
@@ -87,5 +121,6 @@ struct packet
 int e1000_pci_network_attach(struct pci_func *pcif);
 
 int e1000_transmit(void *addr, size_t length);
+int e1000_recv(void *addr, size_t *length);
 
 #endif	// JOS_KERN_E1000_H

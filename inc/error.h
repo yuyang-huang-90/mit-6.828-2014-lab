@@ -28,6 +28,7 @@ enum {
 
 	//E1000 ERR
 	E_E1000_TX_FAILED,
+	E_E1000_RX_FAILED,
 
 	MAXERROR
 };
