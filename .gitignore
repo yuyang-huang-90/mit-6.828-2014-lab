@@ -15,10 +15,7 @@
 /lab?/
 /sol?/
 /myapi.key
-<<<<<<< HEAD
 .suf
-=======
 cscope.*
 init.*
 .ycm*
->>>>>>> lab3
