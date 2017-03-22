@@ -448,8 +448,19 @@ sys_e1000_receive(void *addr, size_t *length)
 {
 	int r;
 	user_mem_assert(curenv, addr, PKT_BUF_SIZE, PTE_W | PTE_U);
-	r = e1000_recv(addr, length);
-	return r;
+	r = e1000_receive(addr, length);
+	if (r == 0)
+		return 0;
+	else {
+		//cprintf("[LOG]:env sleep....\n");
+		curenv->env_status = ENV_NOT_RUNNABLE;
+		curenv->env_wating_for_e1000_rx = true;
+		curenv->env_tf.tf_regs.reg_eax = r;
+		sys_yield();
+	}
+
+	panic("sys_e1000_receive: should never reach this line");
+	return -2;
 }
 
 // Dispatches to the correct kernel function, passing the arguments.

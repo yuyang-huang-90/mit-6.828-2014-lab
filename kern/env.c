@@ -273,10 +273,13 @@ env_alloc(struct Env **newenv_store, envid_t parent_id)
 
 	// Also clear the IPC receiving flag.
 	e->env_ipc_recving = 0;
-
+ 
 	// commit the allocation
 	env_free_list = e->env_link;
 	*newenv_store = e;
+
+	// set the waiting for e1000 rx flag to false
+	e->env_wating_for_e1000_rx = false;
 
 	// cprintf("[%08x] new env %08x\n", curenv ? curenv->env_id : 0, e->env_id);
 	return 0;

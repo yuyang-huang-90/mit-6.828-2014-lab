@@ -36,3 +36,10 @@ Code is implemented
 
 # Ex.12
 Code is implemented
+
+## Q.2
+When the receive queue is empty and a user environment requests the next
+incoming packet. I suspend the calling environment and make such environment
+RUNNABLE again when the interrupt happens (the interrupt generated when packet
+arrived).
+

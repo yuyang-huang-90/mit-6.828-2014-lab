@@ -1,4 +1,7 @@
 #include <kern/e1000.h>
+#include <kern/cpu.h>
+#include <kern/picirq.h>
+#include <kern/env.h>
 
 // LAB 6: Your driver code here
 volatile uint32_t *e1000;
@@ -87,6 +90,9 @@ void e1000_init()
 	e1000[E1000_RCTL] |= E1000_RCTL_SECRC;
 	e1000[E1000_RCTL] &= E1000_RCTL_LPE_NO;
 	e1000[E1000_RCTL] |= E1000_RCTL_EN;
+
+	// init timmer interrupt
+	e1000[E1000_IMS] |= E1000_IMS_RXT0;
 }
 
 void init_recv()
@@ -137,7 +143,7 @@ int e1000_transmit(void *addr, size_t length)
 	return 0;
 }
 
-int e1000_recv(void *addr, size_t *length)
+int e1000_receive(void *addr, size_t *length)
 {
 	size_t tail_idx = (e1000[E1000_RDT] + 1) % RX_RING_SIZE;
 
@@ -146,7 +152,7 @@ int e1000_recv(void *addr, size_t *length)
 		return -1;
 
 	if ((rxq[tail_idx].status & E1000_RXD_STATUS_EOP) == 0)
-		panic("e1000_recv: EOP flag not set, all packets should fit in one buffer");
+		panic("e1000_receive: EOP flag not set, all packets should fit in one buffer");
 
 	*length = rxq[tail_idx].length;
 
@@ -158,4 +164,31 @@ int e1000_recv(void *addr, size_t *length)
 
 	e1000[E1000_RDT] = tail_idx;
 	return 0;
+}
+
+static void clear_e1000_irqs(void)
+{
+	e1000[E1000_ICR] |= E1000_ICR_RTX0;
+	lapic_eoi();
+	irq_eoi();
+}
+
+void e1000_trap_handler(void)
+{
+	//cprintf("[LOG]:pkt arrive....\n");
+	struct Env *recv_env = NULL;
+	int i;
+
+	for (i = 0; i < NENV; i++) {
+		if (envs[i].env_wating_for_e1000_rx)
+			recv_env = &envs[i];
+	}
+
+	if (recv_env != NULL) {
+		recv_env->env_status = ENV_RUNNABLE;
+		recv_env->env_wating_for_e1000_rx = false;
+	}
+
+	clear_e1000_irqs();
+	return;
 }

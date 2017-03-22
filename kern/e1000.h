@@ -41,7 +41,8 @@
 #define E1000_RCTL     (0x00100/4)  /* RX Control - RW */
 #define E1000_IMS      (0x000D0/4)  /* Interrupt Mask Set - RW */
 #define E1000_ICR      (0x000C0/4)  /* Interrupt Cause Read - R/clr */
-#define E1000_EERD     (0x00014/4)  /* EEPROM Read - RW */
+#define E1000_IMS      (0x000D0/4)  /* Interrupt Mask Set - RW */
+#define E1000_ICR      (0x000C0/4)  /* Interrupt Cause Read - R/clr */
 
 
  /* Transmit Descriptor bit definitions */
@@ -73,13 +74,14 @@
 #define E1000_RXD_STATUS_EOP	0x2
 
 // Receive Timer Interrupt mask
-#define E1000_RXT0	0x00000080 /* 7th bit */
-
+#define E1000_IMS_RXT0	0x80 /* 7th bit */
+#define E1000_ICR_RTX0  0x80
 
 // RAH valid bit
 #define E1000_RAH_AV  0x80000000        /* Receive descriptor valid */
 
-# define NELEM_MTA 128
+
+#define NELEM_MTA 128
 
 /* Transmit Descriptor */
 struct e1000_tx_desc
@@ -121,6 +123,6 @@ struct packet
 int e1000_pci_network_attach(struct pci_func *pcif);
 
 int e1000_transmit(void *addr, size_t length);
-int e1000_recv(void *addr, size_t *length);
-
+int e1000_receive(void *addr, size_t *length);
+void e1000_trap_handler(void);
 #endif	// JOS_KERN_E1000_H

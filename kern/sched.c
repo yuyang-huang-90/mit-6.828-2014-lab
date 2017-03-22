@@ -30,8 +30,9 @@ sched_yield(void)
 
 	// LAB 4: Your code here.
 	int current_env_idx = curenv ? ENVX(curenv->env_id) : 0;
+	int i;
 	int idx = current_env_idx;
-	for (int i = 0; i < NENV; ++i) {
+	for (i = 0; i < NENV; ++i) {
 		idx = (idx + 1) % NENV;
 		if (envs[idx].env_status == ENV_RUNNABLE) {
 			env_run(&envs[idx]);
@@ -40,6 +41,14 @@ sched_yield(void)
 
 	if (curenv != NULL && curenv->env_status == ENV_RUNNING)
 		env_run(curenv);
+
+	// if no runnable env found retry the env that waiting for e1000 rx
+	for (i = 0; i < NENV; i++) {
+		if (envs[i].env_wating_for_e1000_rx) {
+			envs[i].env_wating_for_e1000_rx = false;
+			env_run(&envs[i]);
+		}
+	}
 
 	// sched_halt never returns
 	sched_halt();

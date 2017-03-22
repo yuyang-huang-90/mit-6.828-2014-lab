@@ -17,6 +17,8 @@
 #include <kern/spinlock.h>
 #include <kern/time.h>
 
+#include <kern/e1000.h>
+
 static struct Taskstate ts;
 
 /* For debugging, so print_trapframe can distinguish between printing
@@ -68,6 +70,7 @@ void irq_serial();
 void irq_spurious();
 void irq_ide();
 void irq_error();
+void irq_e1000();
 
 static const char *trapname(int trapno)
 {
@@ -137,6 +140,8 @@ trap_init(void)
 	SETGATE(idt[IRQ_OFFSET + IRQ_SPURIOUS], 0, GD_KT, irq_spurious, 0);
 	SETGATE(idt[IRQ_OFFSET + IRQ_IDE], 0, GD_KT, irq_ide, 0);
 	SETGATE(idt[IRQ_OFFSET + IRQ_ERROR], 0, GD_KT, irq_error, 0);
+
+	SETGATE(idt[IRQ_OFFSET + IRQ_E1000], 0, GD_KT, irq_e1000, 0);
 
 
 	// Per-CPU setup 
@@ -289,6 +294,9 @@ trap_dispatch(struct Trapframe *tf)
 			break;
 		case IRQ_OFFSET + IRQ_SERIAL:
 			serial_intr();
+			break;
+		case IRQ_OFFSET + IRQ_E1000:
+			e1000_trap_handler();
 			break;
 		default:
 			// Unexpected trap: The user process or the kernel has a bug.
