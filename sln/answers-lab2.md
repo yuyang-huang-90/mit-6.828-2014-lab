@@ -1,17 +1,8 @@
-# lab1 sln
-
-# Ex. 1
-Source code implementation finished.
-
-# Ex. 2
-Read the relevant Sections of the manual.
-
-
 # Ex. 3
 I set break point at `cprintf` and exam the args in both GDB and QEMU.
 
 * In GDB
-``
+```
 (gdb) b cprintf
 Breakpoint 1 at 0xf0101532: file kern/printf.c, line 26.
 (gdb) c
@@ -27,10 +18,10 @@ cnt = 0x0
 fmt = 0xf0102480 "6828 decimal is %o octal!\n"
 (gdb) x /xw 0xf0102480
 0xf0102480:     0x38323836
-``
+```
 
 * In QEMU
-``
+```
 (qemu) info pg
 VPN range     Entry         Flags        Physical page
 [00000-003ff]  PDE[000]     ----A----P
@@ -57,7 +48,7 @@ VPN range     Entry         Flags        Physical page
 00000000f0102480: 0x00000000
 (qemu) xp /x 0x00102480
 0000000000102480: 0x38323836
-``
+```
 
 We can see the  virtual address `0xf0102480` and the physical address
 `0x00102480` have the same content. Just as the pagetable show us.
@@ -67,12 +58,6 @@ The type of x will have to be `uintptr_t`. The reason for this is we try to
 write the content at x. When read/write the memory in the kernel, all the
 address should be virtual address because the address translation will
 automatically handled by the MMU.
-
-#Ex.4
-Source code implementation finished.
-
-#Ex.5
-Source code implementation finished.
 
 ## Question 2.
 
